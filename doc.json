@@ -1,0 +1,44 @@
+{
+  "name": "SimpleDoors",
+  "description": "Adds simple doors to the game",
+  "author": "Zombie_Striker",
+  "config": {
+    "only-authorized": {
+      "description": "WIP: Toggle whether only whitelisted players can create doors",
+      "type": "boolean",
+      "default": false
+    },
+    "authorized-users": {
+      "description": "WIP: Lists players that can create doors",
+      "type": "players",
+      "default": []
+    },
+    "door-range": {
+      "description": "The minimum range a player has to be in order to open doors.",
+      "type": "number",
+      "default": 70
+    }
+  },
+  "commands": [
+    {
+      "name": "!door",
+      "description": "List door commands.",
+      "example": "!door"
+    },
+    {
+      "name": "!door:create",
+      "description": "Creates a door",
+      "example": "!door:create scifi1x doory"
+    },
+      {
+        "name": "!door:list",
+        "description": "Lists all doors",
+        "example": "!door:list"
+      },
+    {
+      "name": "!deletedoor",
+      "description": "Deletes a door",
+      "example": "!door:delete doory"
+    }
+  ]
+}
