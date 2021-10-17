@@ -172,6 +172,17 @@ async createdoor(type,doorname,position){
       .on('chatcmd:door:create', async (name, ...args) => {
         const player = Omegga.getPlayer(name);
           if (player){
+
+
+                if (
+                  this.config['only-authorized'] &&
+                  !player.isHost() &&
+                  !this.config['authorized-users'].some(p => player.id === p.id)
+                ){
+                  Omegga.whisper(player,"<color=\"f22\">You are not allowed to use this command.")
+                  return;
+                }
+
         if(args[0] === undefined){
           Omegga.whisper(player,"<b>Available Doors Types("+doortypes.length+"):</>");
           for(let i = 0; i < doortypes.length; i++){
@@ -214,6 +225,15 @@ async createdoor(type,doorname,position){
               .on('chatcmd:door:list', async (name, ...args) => {
                 const player = Omegga.getPlayer(name);
                   if (player){
+
+                                  if (
+                                    this.config['only-authorized'] &&
+                                    !player.isHost() &&
+                                    !this.config['authorized-users'].some(p => player.id === p.id)
+                                  ){
+                                    Omegga.whisper(player,"<color=\"f22\">You are not allowed to use this command.")
+                                    return;
+                                  }
                   Omegga.whisper(player,"<b>Known Doors: ("+doorObjects.length+"):</>");
                   for(let i = 0; i < doorObjects.length; i++){
                     Omegga.whisper(player,doorObjects[i].doorname);
@@ -225,6 +245,15 @@ async createdoor(type,doorname,position){
         .on('chatcmd:door:delete', async (name, ...args) => {
           const player = Omegga.getPlayer(name);
             if (player){
+
+                            if (
+                              this.config['only-authorized'] &&
+                              !player.isHost() &&
+                              !this.config['authorized-users'].some(p => player.id === p.id)
+                            ){
+                              Omegga.whisper(player,"<color=\"f22\">You are not allowed to use this command.")
+                              return;
+                            }
           if(args[0] === undefined){
             Omegga.whisper(player,"<b>Known Doors ("+doorObjects.length+"):</>");
             for(let i = 0; i < doorObjects.length; i++){
