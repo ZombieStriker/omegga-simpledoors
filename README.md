@@ -4,7 +4,7 @@ A (not so) simple door plugin.
 
 ## Installation
 
-`omegga install gh:ZombieStriker/omegga-simpledoors`
+`omegga install gh:ZombieStriker/simpledoors`
 
 ## Usage
 
