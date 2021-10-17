@@ -112,10 +112,13 @@ class SimpleDoors {
   }
 
 async openDoor(playername, door){
+  if(door){
   door.isopen=true;
   this.clearDoor(door);
 }
+}
 async closeDoor(door){
+  if(door){
     door.isopen=false;
     const parser = new ParseTool(brs.read(fs.readFileSync(doors[door.type])));
     const tool = new WriteTool(parser.save).empty();
@@ -134,6 +137,7 @@ async closeDoor(door){
     if (save.bricks.length === 0) return;
     // load the text save data as this owner
     Omegga.loadSaveData(save, {quiet: true});
+}
 }
 
 async createdoor(type,doorname,position){
@@ -236,6 +240,7 @@ async createdoor(type,doorname,position){
                                   }
                   Omegga.whisper(player,"<b>Known Doors: ("+doorObjects.length+"):</>");
                   for(let i = 0; i < doorObjects.length; i++){
+                    if(doorObjects[i])
                     Omegga.whisper(player,doorObjects[i].doorname);
                   }
               }
@@ -257,6 +262,7 @@ async createdoor(type,doorname,position){
           if(args[0] === undefined){
             Omegga.whisper(player,"<b>Known Doors ("+doorObjects.length+"):</>");
             for(let i = 0; i < doorObjects.length; i++){
+              if(doorObjects[i])
               Omegga.whisper(player,doorObjects[i].doorname);
             }
           }else{
