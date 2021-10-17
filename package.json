@@ -13,7 +13,7 @@
   "author": "Zombie_Striker",
   "license": "ISC",
   "dependencies": {
-    "chokidar": "^3.4.3"
+    "chokidar": "^3.4.3",
     "brs-js": "^2.0.0"
   },
   "devDependencies": {}
