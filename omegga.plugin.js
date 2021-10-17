@@ -3,7 +3,6 @@ const brs = require('brs-js');
 const fs = require('fs');
 const path = require('path');
 
-const fontParser = require('./util.fontParser.js');
 const { moveBricks, ParseTool, WriteTool } = require('./util.tool.js');
 
 
@@ -28,6 +27,13 @@ const playerPositions = [];
 
 let doorrange = 50;
 
+function createUUID() {
+   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+   });
+}
+
 function Door(position, doorname, type){
     this.position = position;
     this.doorname = doorname;
@@ -35,16 +41,20 @@ function Door(position, doorname, type){
     this.isopen=false;
     this.isvalid=true;
     this.holder = undefined;
-    this.buildAuthor =  '039b96e9-1646-4b7d-9434-4c726218c6fa';
+    this.buildAuthor =  createUUID();
 }
-function Door(position, doorname, type, uuid){
+function Door(position, doorname, type, author){
     this.position = position;
     this.doorname = doorname;
     this.type = type;
     this.isopen=false;
     this.isvalid=true;
     this.holder = undefined;
-    this.buildAuthor = '039b96e9-1646-4b7d-9434-4c726218c6fa';
+    this.buildAuthor = author;
+    if(author===undefined){
+      Omegga.broadcast("Failed to load build author for door "+doorname+". Break this door.");
+      this.buildAuthor=createUUID();
+    }
 }
 
 function getPlayerID(username){
@@ -107,37 +117,50 @@ class SimpleDoors {
   }
 
   async clearDoor(door){
+    try{
     //Omegga.clearBricks('SimpleDoor-'+doorname,{quiet: false})
-    Omegga.clearBricks('039b96e9-1646-4b7d-9434-4c726218c6fa',true);
+    if(door){
+    Omegga.clearBricks(door.buildAuthor,true);
+  }else{
+  Omegga.broadcast("Door is somehow undefined");
+  }
+}catch(e){Omegga.broadcast("error117: "+e);}
   }
 
 async openDoor(playername, door){
+    try{
   if(door){
   door.isopen=true;
   this.clearDoor(door);
+}else{
+Omegga.broadcast("Door is somehow undefined");
 }
+}catch(e){Omegga.broadcast("error128: "+e);}
 }
 async closeDoor(door){
+  try{
   if(door){
     door.isopen=false;
     const parser = new ParseTool(brs.read(fs.readFileSync(doors[door.type])));
     const tool = new WriteTool(parser.save).empty();
+
     tool.setAuthor({
-      id: '039b96e9-1646-4b7d-9434-4c726218c6fa',
+      id: door.buildAuthor,
       name: 'SimpleDoor-'+door.doorname,
     });
-    /*parser.save.bricks.forEach((item, i) => {
+    parser.save.bricks.forEach((item, i) => {
       item.author = {
-        id: '039b96e9-1646-4b7d-9434-44726218c6fa',
-        name: 'SimpleDoor-'+doorname,
+        id: door.buildAuthor,
+        name: 'SimpleDoor-'+door.doorname,
       };
-    });*/
+    });
       tool.addBrick(...moveBricks(parser.save.bricks, door.position));
     let save = tool.write();
     if (save.bricks.length === 0) return;
     // load the text save data as this owner
     Omegga.loadSaveData(save, {quiet: true});
 }
+}catch(e){Omegga.broadcast("error153: "+e);}
 }
 
 async createdoor(type,doorname,position){
@@ -153,9 +176,11 @@ async createdoor(type,doorname,position){
         let doortype = await this.store.get("door."+i+".type");
           let doorpos = await this.store.get("door."+i+".position");
           let isvalid = await this.store.get("door."+i+".valid");
-          let uuid = await this.store.get("door."+i+".auth");
+          let uuid = await this.store.get("door."+i+".author");
           if(isvalid==true){
-          this.createdoor(doortype,doorname,doorpos,uuid);
+            doornames.push(doorname);
+            doorObjects[doorObjects.length] = new Door(doorpos,doorname,doortype,uuid);
+            this.closeDoor(doorObjects[doorObjects.length-1]);
         }
     }
 
@@ -268,6 +293,7 @@ async createdoor(type,doorname,position){
           }else{
                       let door = getDoor(args[0]);
                       if(door){
+                        this.clearDoor(door);
                         removeDoor(args[0]);
                           Omegga.whisper(player,"Door "+args[0]+" deleted. Open another door to clear the remains.");
                       }else{
@@ -296,7 +322,7 @@ async handleDoors(){
           if(door){
           for(let playerindex = 0; playerindex < players.length;playerindex++){
             let player = players[playerindex];
-            if(playerPositions[playerindex]){
+            if(playerPositions[playerindex] && player && door.position){
             let distance = dist(playerPositions[playerindex],door.position);
             if(distance <= doorrange){
               foundPlayer=true;
@@ -315,7 +341,7 @@ async handleDoors(){
           }
           }
         }
-        if(clearedDoors){
+        /*if(clearedDoors){
         for(let doorindex = 0; doorindex < doorObjects.length;doorindex++){
           let door = doorObjects[doorindex];
           if(door){
@@ -324,7 +350,7 @@ async handleDoors(){
             }
           }
         }
-        }
+      }*/
 
           this.handleDoors();
     }catch(e){
@@ -358,7 +384,11 @@ async handleDoors(){
           this.store.set("door."+i+".type",door.type);
             this.store.set("door."+i+".valid",door.isvalid);
             this.store.set("door."+i+".position",door.position);
-            this.store.set("door."+i+".auth",door.buildAuthor);
+            if(door.buildAuthor===undefined){
+            this.store.set("door."+i+".author",createUUID());
+            }else{
+            this.store.set("door."+i+".author",door.buildAuthor);
+          }
           }else{
               this.store.set("door."+i+".valid",false);
           }
