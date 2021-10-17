@@ -1,0 +1,19 @@
+{
+  "name": "simpledoors",
+  "version": "0.1.1",
+  "description": "A simple door plugin",
+  "main": "omegga.plugin.js",
+  "scripts": {
+    "test": "omegga"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZombieStriker/omegga-simpledoors.git"
+  },
+  "author": "Zombie_Striker",
+  "license": "ISC",
+  "dependencies": {
+    "chokidar": "^3.4.3"
+  },
+  "devDependencies": {}
+}
